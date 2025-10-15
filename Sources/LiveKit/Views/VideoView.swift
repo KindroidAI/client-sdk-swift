@@ -243,7 +243,7 @@ public class VideoView: NativeView, Loggable {
     private var _currentFPS: Int = 0
     private var _frameCount: Int = 0
 
-    #if os(iOS) && !os(iOSApplicationExtension)
+    #if os(iOS) && !APP_EXTENSION
     private lazy var _pinchGestureRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(_handlePinchGesture(_:)))
     // This should be thread safe so it's not required to be guarded by the lock
     var _pinchStartZoomFactor: CGFloat = 0.0
@@ -259,7 +259,7 @@ public class VideoView: NativeView, Loggable {
             log("Must be called on main thread", .error)
         }
 
-        #if os(iOS) && !os(iOSApplicationExtension)
+        #if os(iOS) && !APP_EXTENSION
         clipsToBounds = true
         #endif
 
@@ -363,7 +363,7 @@ public class VideoView: NativeView, Loggable {
             if newState.pinchToZoomOptions != oldState.pinchToZoomOptions {
                 Task { @MainActor in
                     self._pinchGestureRecognizer.isEnabled = newState.pinchToZoomOptions.isEnabled
-                    #if os(iOS) && !os(iOSApplicationExtension)
+                    #if os(iOS) && !APP_EXTENSION
                     self._rampZoomFactorToAllowedBounds(options: newState.pinchToZoomOptions)
                     self._pinchGestureRecognizer.isEnabled = newState.pinchToZoomOptions.isEnabled
                     #endif
