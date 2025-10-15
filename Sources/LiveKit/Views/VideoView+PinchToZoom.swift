@@ -39,7 +39,7 @@ extension VideoView {
     }
 }
 
-#if os(iOS)
+#if os(iOS) && !os(iOSApplicationExtension)
 @available(iOSApplicationExtension, unavailable, message: "Camera capture is not supported in app extensions.")
 @available(tvOSApplicationExtension, unavailable, message: "Camera capture is not supported in app extensions.")
 extension VideoView {

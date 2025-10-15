@@ -243,7 +243,7 @@ public class VideoView: NativeView, Loggable {
     private var _currentFPS: Int = 0
     private var _frameCount: Int = 0
 
-    #if os(iOS)
+    #if os(iOS) && !os(iOSApplicationExtension)
     private lazy var _pinchGestureRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(_handlePinchGesture(_:)))
     // This should be thread safe so it's not required to be guarded by the lock
     var _pinchStartZoomFactor: CGFloat = 0.0
@@ -259,7 +259,7 @@ public class VideoView: NativeView, Loggable {
             log("Must be called on main thread", .error)
         }
 
-        #if os(iOS)
+        #if os(iOS) && !os(iOSApplicationExtension)
         clipsToBounds = true
         #endif
 
@@ -363,11 +363,10 @@ public class VideoView: NativeView, Loggable {
             if newState.pinchToZoomOptions != oldState.pinchToZoomOptions {
                 Task { @MainActor in
                     self._pinchGestureRecognizer.isEnabled = newState.pinchToZoomOptions.isEnabled
-                    if #available(iOSApplicationExtension 13.0, *) {
-                        self.log("Pinch-to-zoom is not supported in app extensions.", .warning)
-                    } else {
-                        self._rampZoomFactorToAllowedBounds(options: newState.pinchToZoomOptions)
-                    }
+                    #if os(iOS) && !os(iOSApplicationExtension)
+                    self._rampZoomFactorToAllowedBounds(options: newState.pinchToZoomOptions)
+                    self._pinchGestureRecognizer.isEnabled = newState.pinchToZoomOptions.isEnabled
+                    #endif
                 }
             }
             #endif
@@ -406,12 +405,10 @@ public class VideoView: NativeView, Loggable {
 
         #if os(iOS)
         // Add pinch gesture recognizer
-        if #available(iOSApplicationExtension 13.0, *) {
-            log("Pinch-to-zoom is not supported in app extensions.", .warning)
-        } else {
-            addGestureRecognizer(_pinchGestureRecognizer)
-            _pinchGestureRecognizer.isEnabled = _state.pinchToZoomOptions.isEnabled
-        }
+        #if os(iOS) && !os(iOSApplicationExtension)
+        addGestureRecognizer(_pinchGestureRecognizer)
+        _pinchGestureRecognizer.isEnabled = _state.pinchToZoomOptions.isEnabled
+        #endif
         #endif
     }
 
