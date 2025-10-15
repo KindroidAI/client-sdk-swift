@@ -365,6 +365,10 @@ public extension LocalParticipant {
             } else if enabled {
                 // Try to create a new track
                 if source == .camera {
+                    guard #unavailable(iOSApplicationExtension) else {
+                        log("Camera capture is not supported in app extensions.", .warning)
+                        return nil
+                    }
                     let localTrack = LocalVideoTrack.createCameraTrack(options: (captureOptions as? CameraCaptureOptions) ?? room._state.roomOptions.defaultCameraCaptureOptions,
                                                                        reportStatistics: room._state.roomOptions.reportRemoteTrackStatistics)
                     return try await self._publish(track: localTrack, options: publishOptions)

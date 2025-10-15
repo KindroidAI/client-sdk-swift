@@ -261,28 +261,29 @@ public class CameraCapturer: VideoCapturer, @unchecked Sendable {
 
         return true
     }
-}
+    @available(iOSApplicationExtension, unavailable, message: "Camera capture is not supported in app extensions.")
+    @available(tvOSApplicationExtension, unavailable, message: "Camera capture is not supported in app extensions.")
+    private final class VideoCapturerDelegateAdapter: NSObject, LKRTCVideoCapturerDelegate, Loggable {
+        weak var cameraCapturer: CameraCapturer?
 
-class VideoCapturerDelegateAdapter: NSObject, LKRTCVideoCapturerDelegate, Loggable {
-    weak var cameraCapturer: CameraCapturer?
-
-    init(cameraCapturer: CameraCapturer? = nil) {
-        self.cameraCapturer = cameraCapturer
-    }
-
-    func capturer(_ capturer: LKRTCVideoCapturer, didCapture frame: LKRTCVideoFrame) {
-        guard let cameraCapturer else { return }
-
-        var frame = frame
-        let adaptOutputFormatEnabled = (frame.width != cameraCapturer.options.dimensions.width || frame.height != cameraCapturer.options.dimensions.height)
-        if adaptOutputFormatEnabled, let newFrame = frame.cropAndScaleFromCenter(targetWidth: cameraCapturer.options.dimensions.width,
-                                                                                 targetHeight: cameraCapturer.options.dimensions.height)
-        {
-            frame = newFrame
+        init(cameraCapturer: CameraCapturer? = nil) {
+            self.cameraCapturer = cameraCapturer
         }
 
-        // Pass frame to video source
-        cameraCapturer.capture(frame: frame, capturer: capturer, device: cameraCapturer.device, options: cameraCapturer.options)
+        func capturer(_ capturer: LKRTCVideoCapturer, didCapture frame: LKRTCVideoFrame) {
+            guard let cameraCapturer else { return }
+
+            var frame = frame
+            let adaptOutputFormatEnabled = (frame.width != cameraCapturer.options.dimensions.width || frame.height != cameraCapturer.options.dimensions.height)
+            if adaptOutputFormatEnabled, let newFrame = frame.cropAndScaleFromCenter(targetWidth: cameraCapturer.options.dimensions.width,
+                                                                                      targetHeight: cameraCapturer.options.dimensions.height)
+            {
+                frame = newFrame
+            }
+
+            // Pass frame to video source
+            cameraCapturer.capture(frame: frame, capturer: capturer, device: cameraCapturer.device, options: cameraCapturer.options)
+        }
     }
 }
 
