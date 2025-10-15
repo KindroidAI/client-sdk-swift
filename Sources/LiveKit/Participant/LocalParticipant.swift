@@ -365,14 +365,15 @@ public extension LocalParticipant {
             } else if enabled {
                 // Try to create a new track
                 if source == .camera {
-                    #if os(iOSApplicationExtension) || os(tvOSApplicationExtension)
-                    self.log("Camera capture is not supported in app extensions.", .warning)
-                    return nil
-                    #else
-                    let localTrack = LocalVideoTrack.createCameraTrack(options: (captureOptions as? CameraCaptureOptions) ?? room._state.roomOptions.defaultCameraCaptureOptions,
-                                                                       reportStatistics: room._state.roomOptions.reportRemoteTrackStatistics)
-                    return try await self._publish(track: localTrack, options: publishOptions)
+                    #if os(iOS) || os(tvOS)
+                    if #available(iOSApplicationExtension 13.0, tvOSApplicationExtension 13.0, *) {
+                        self.log("Camera capture is not supported in app extensions.", .warning)
+                        return nil
+                    }
                     #endif
+                    return try await self._publishCameraTrack(room: room,
+                                                              captureOptions: captureOptions,
+                                                              publishOptions: publishOptions)
                 } else if source == .microphone {
                     let localTrack = LocalAudioTrack.createTrack(options: (captureOptions as? AudioCaptureOptions) ?? room._state.roomOptions.defaultAudioCaptureOptions,
                                                                  reportStatistics: room._state.roomOptions.reportRemoteTrackStatistics)
@@ -419,6 +420,17 @@ public extension LocalParticipant {
 // MARK: - Simulcast codecs
 
 extension LocalParticipant {
+    @available(iOSApplicationExtension, unavailable, message: "Camera capture is not supported in app extensions.")
+    @available(tvOSApplicationExtension, unavailable, message: "Camera capture is not supported in app extensions.")
+    private func _publishCameraTrack(room: Room,
+                                     captureOptions: CaptureOptions?,
+                                     publishOptions: TrackPublishOptions?) async throws -> LocalTrackPublication
+    {
+        let localTrack = LocalVideoTrack.createCameraTrack(options: (captureOptions as? CameraCaptureOptions) ?? room._state.roomOptions.defaultCameraCaptureOptions,
+                                                           reportStatistics: room._state.roomOptions.reportRemoteTrackStatistics)
+        return try await self._publish(track: localTrack, options: publishOptions)
+    }
+
     // Publish additional (backup) codec when requested by server
     func publish(additionalVideoCodec subscribedCodec: Livekit_SubscribedCodec,
                  for localTrackPublication: LocalTrackPublication) async throws
