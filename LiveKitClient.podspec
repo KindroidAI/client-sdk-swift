@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name = "LiveKitClient"
-  spec.version = "2.8.1"
+  spec.version = "2.8.1-kindroid1"
   spec.summary = "LiveKit Swift Client SDK. Easily build live audio or video experiences into your mobile app, game or website."
   spec.homepage = "https://github.com/livekit/client-sdk-swift"
   spec.license = {:type => "Apache 2.0", :file => "LICENSE"}
@@ -10,7 +10,7 @@ Pod::Spec.new do |spec|
   spec.osx.deployment_target = "10.15"
 
   spec.swift_versions = ["5.9"]
-  spec.source = {:git => "https://github.com/livekit/client-sdk-swift.git", :tag => spec.version.to_s}
+  spec.source = {:git => "https://github.com/KindroidAI/client-sdk-swift.git", :tag => spec.version.to_s}
 
   spec.source_files = "Sources/**/*"
 
