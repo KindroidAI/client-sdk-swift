@@ -363,7 +363,11 @@ public class VideoView: NativeView, Loggable {
             if newState.pinchToZoomOptions != oldState.pinchToZoomOptions {
                 Task { @MainActor in
                     self._pinchGestureRecognizer.isEnabled = newState.pinchToZoomOptions.isEnabled
-                    self._rampZoomFactorToAllowedBounds(options: newState.pinchToZoomOptions)
+                    if #available(iOSApplicationExtension 13.0, *) {
+                        self.log("Pinch-to-zoom is not supported in app extensions.", .warning)
+                    } else {
+                        self._rampZoomFactorToAllowedBounds(options: newState.pinchToZoomOptions)
+                    }
                 }
             }
             #endif
@@ -402,8 +406,12 @@ public class VideoView: NativeView, Loggable {
 
         #if os(iOS)
         // Add pinch gesture recognizer
-        addGestureRecognizer(_pinchGestureRecognizer)
-        _pinchGestureRecognizer.isEnabled = _state.pinchToZoomOptions.isEnabled
+        if #available(iOSApplicationExtension 13.0, *) {
+            log("Pinch-to-zoom is not supported in app extensions.", .warning)
+        } else {
+            addGestureRecognizer(_pinchGestureRecognizer)
+            _pinchGestureRecognizer.isEnabled = _state.pinchToZoomOptions.isEnabled
+        }
         #endif
     }
 
