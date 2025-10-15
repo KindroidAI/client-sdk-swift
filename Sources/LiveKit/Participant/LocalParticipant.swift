@@ -365,7 +365,7 @@ public extension LocalParticipant {
             } else if enabled {
                 // Try to create a new track
                 if source == .camera {
-                    #if APP_EXTENSION
+                    #if os(iOSApplicationExtension) || os(tvOSApplicationExtension)
                     self.log("Camera capture is not supported in app extensions.", .warning)
                     return nil
                     #else
