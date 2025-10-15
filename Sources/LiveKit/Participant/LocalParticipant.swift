@@ -365,13 +365,14 @@ public extension LocalParticipant {
             } else if enabled {
                 // Try to create a new track
                 if source == .camera {
-                    if #available(iOSApplicationExtension 13.0, *) {
-                        self.log("Camera capture is not supported in app extensions.", .warning)
-                        return nil
-                    }
+                    #if os(iOS) && !os(iOSApplicationExtension)
                     let localTrack = LocalVideoTrack.createCameraTrack(options: (captureOptions as? CameraCaptureOptions) ?? room._state.roomOptions.defaultCameraCaptureOptions,
                                                                        reportStatistics: room._state.roomOptions.reportRemoteTrackStatistics)
                     return try await self._publish(track: localTrack, options: publishOptions)
+                    #else
+                    self.log("Camera capture is not supported in app extensions.", .warning)
+                    return nil
+                    #endif
                 } else if source == .microphone {
                     let localTrack = LocalAudioTrack.createTrack(options: (captureOptions as? AudioCaptureOptions) ?? room._state.roomOptions.defaultAudioCaptureOptions,
                                                                  reportStatistics: room._state.roomOptions.reportRemoteTrackStatistics)
