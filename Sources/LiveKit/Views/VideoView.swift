@@ -243,8 +243,13 @@ public class VideoView: NativeView, Loggable {
     private var _currentFPS: Int = 0
     private var _frameCount: Int = 0
 
-    #if os(iOS) && !APP_EXTENSION
-    private lazy var _pinchGestureRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(_handlePinchGesture(_:)))
+    #if os(iOS)
+    private lazy var _pinchGestureRecognizer: UIPinchGestureRecognizer? = {
+        if #available(iOSApplicationExtension 13.0, *) {
+            return nil
+        }
+        return UIPinchGestureRecognizer(target: self, action: #selector(_handlePinchGesture(_:)))
+    }()
     // This should be thread safe so it's not required to be guarded by the lock
     var _pinchStartZoomFactor: CGFloat = 0.0
     #endif
@@ -259,7 +264,7 @@ public class VideoView: NativeView, Loggable {
             log("Must be called on main thread", .error)
         }
 
-        #if os(iOS) && !APP_EXTENSION
+        #if os(iOS)
         clipsToBounds = true
         #endif
 
@@ -362,11 +367,14 @@ public class VideoView: NativeView, Loggable {
             #if os(iOS)
             if newState.pinchToZoomOptions != oldState.pinchToZoomOptions {
                 Task { @MainActor in
-                    self._pinchGestureRecognizer.isEnabled = newState.pinchToZoomOptions.isEnabled
-                    #if os(iOS) && !APP_EXTENSION
-                    self._rampZoomFactorToAllowedBounds(options: newState.pinchToZoomOptions)
-                    self._pinchGestureRecognizer.isEnabled = newState.pinchToZoomOptions.isEnabled
-                    #endif
+                    if let pinchRecognizer = self._pinchGestureRecognizer {
+                        if #available(iOSApplicationExtension 13.0, *) {
+                            // Pinch not available in app extensions.
+                        } else {
+                            pinchRecognizer.isEnabled = newState.pinchToZoomOptions.isEnabled
+                            self._rampZoomFactorToAllowedBounds(options: newState.pinchToZoomOptions)
+                        }
+                    }
                 }
             }
             #endif
@@ -404,11 +412,14 @@ public class VideoView: NativeView, Loggable {
         _renderTimer.restart()
 
         #if os(iOS)
-        // Add pinch gesture recognizer
-        #if os(iOS) && !os(iOSApplicationExtension)
-        addGestureRecognizer(_pinchGestureRecognizer)
-        _pinchGestureRecognizer.isEnabled = _state.pinchToZoomOptions.isEnabled
-        #endif
+        if let pinchRecognizer = _pinchGestureRecognizer {
+            if #available(iOSApplicationExtension 13.0, *) {
+                // Pinch not available in app extensions.
+            } else {
+                addGestureRecognizer(pinchRecognizer)
+                pinchRecognizer.isEnabled = _state.pinchToZoomOptions.isEnabled
+            }
+        }
         #endif
     }
 
