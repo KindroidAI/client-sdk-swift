@@ -39,7 +39,7 @@ extension VideoView {
     }
 }
 
-#if os(iOS) && !os(iOSApplicationExtension)
+#if os(iOS) && !os(iOSApplicationExtension) && !LK_BROADCAST_EXTENSION
 @available(iOSApplicationExtension, unavailable, message: "Camera capture is not supported in app extensions.")
 @available(tvOSApplicationExtension, unavailable, message: "Camera capture is not supported in app extensions.")
 extension VideoView {

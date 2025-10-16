@@ -243,7 +243,7 @@ public class VideoView: NativeView, Loggable {
     private var _currentFPS: Int = 0
     private var _frameCount: Int = 0
 
-    #if os(iOS)
+    #if os(iOS) && !LK_BROADCAST_EXTENSION
     private lazy var _pinchGestureRecognizer: UIPinchGestureRecognizer? = {
         if #available(iOSApplicationExtension 13.0, *) {
             return nil
@@ -364,7 +364,7 @@ public class VideoView: NativeView, Loggable {
                 }
             }
 
-            #if os(iOS)
+            #if os(iOS) && !LK_BROADCAST_EXTENSION
             if newState.pinchToZoomOptions != oldState.pinchToZoomOptions {
                 Task { @MainActor in
                     if let pinchRecognizer = self._pinchGestureRecognizer {
@@ -411,7 +411,7 @@ public class VideoView: NativeView, Loggable {
 
         _renderTimer.restart()
 
-        #if os(iOS)
+        #if os(iOS) && !LK_BROADCAST_EXTENSION
         if let pinchRecognizer = _pinchGestureRecognizer {
             if #available(iOSApplicationExtension 13.0, *) {
                 // Pinch not available in app extensions.
