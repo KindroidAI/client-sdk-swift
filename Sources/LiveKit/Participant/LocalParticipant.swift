@@ -418,6 +418,7 @@ public extension LocalParticipant {
 
 // MARK: - Simulcast codecs
 
+extension LocalParticipant {
     // Publish additional (backup) codec when requested by server
     func publish(additionalVideoCodec subscribedCodec: Livekit_SubscribedCodec,
                  for localTrackPublication: LocalTrackPublication) async throws
