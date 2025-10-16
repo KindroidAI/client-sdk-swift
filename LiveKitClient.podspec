@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name = "LiveKitClient"
-  spec.version = "2.7.0-kindroid19"
+  spec.version = "2.7.0-kindroid18"
   spec.summary = "LiveKit Swift Client SDK. Easily build live audio or video experiences into your mobile app, game or website."
   spec.homepage = "https://github.com/livekit/client-sdk-swift"
   spec.license = { :type => "Apache 2.0", :file => "LICENSE" }
@@ -48,10 +48,13 @@ Pod::Spec.new do |spec|
 
     add_common_dependencies.call(broadcast)
 
+    broadcast.module_name = "LiveKitBroadcast"
+
     config = {
       "APPLICATION_EXTENSION_API_ONLY" => "YES",
-      "PRODUCT_NAME" => "LiveKitClientBroadcast",
-      "EXECUTABLE_NAME" => "LiveKitClientBroadcast"
+      "PRODUCT_NAME" => "LiveKitBroadcast",
+      "PRODUCT_MODULE_NAME" => "LiveKitBroadcast",
+      "CURRENT_PRODUCT_MODULE_NAME" => "LiveKitBroadcast"
     }
     config["OTHER_SWIFT_FLAGS"] = broadcast_swift_flags unless broadcast_swift_flags.empty?
     broadcast.pod_target_xcconfig = config
